@@ -4,9 +4,9 @@ namespace AndonMonitoring.Repositories
 {
     public interface IAndonRepository
     {
-        public AndonDTO GetAndon(int id);
-        public int AddAndon(AndonDTO light);
+        public AndonDto GetAndon(int id);
+        public int AddAndon(AndonDto light);
         public void DeleteAndon(int id);
-        public void UpdateAndon(AndonDTO light);
+        public void UpdateAndon(AndonDto light);
     }
 }

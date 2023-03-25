@@ -1,4 +1,4 @@
 ﻿namespace AndonMonitoring.Data
 {
-    public record AndonDTO(int Id, string Name, DateTime CreatedTime);
+    public record AndonDto(int Id, string Name, DateTime CreatedTime);
 }

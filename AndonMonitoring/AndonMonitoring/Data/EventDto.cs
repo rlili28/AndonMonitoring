@@ -1,4 +1,4 @@
 ﻿namespace AndonMonitoring.Data
 {
-    public record EventDTO(int Id, int AndonId, int StateId, DateTime StartDate);
+    public record EventDto(int Id, int AndonId, int StateId, DateTime StartDate);
 }

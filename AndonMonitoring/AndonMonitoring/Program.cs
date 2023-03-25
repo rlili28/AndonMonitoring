@@ -1,5 +1,8 @@
 using AndonMonitoring.Data;
+using AndonMonitoring.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Npgsql;
 
 namespace AndonMonitoring
 {
@@ -9,11 +12,23 @@ namespace AndonMonitoring
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            //Add connection
+            //Add connection string
             var conn = builder.Configuration.GetConnectionString("DefaultConnection");
+
             //Add dbcontext
             builder.Services.AddDbContext<AndonDbContext>(options =>
                     options.UseNpgsql(conn));
+
+            builder.Services.AddScoped<AndonDbContext>();
+
+            var options = new DbContextOptionsBuilder<AndonDbContext>();
+            options.UseNpgsql(conn);
+            var db = new AndonDbContext(options.Options);
+            var state = new StateRepository(db);
+            int returnId = state.AddState(new StateDto(2, "detected"));
+            int returnId2 = state.AddState(new StateDto(3, "problem"));
+            int returnId3 = state.AddState(new StateDto(4, "deffective"));
+            Console.WriteLine("db adding called, return ID: " + returnId);
 
             // Add services to the container.
 
@@ -24,7 +39,7 @@ namespace AndonMonitoring
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            //Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();

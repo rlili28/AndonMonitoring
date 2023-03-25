@@ -4,8 +4,8 @@ namespace AndonMonitoring.Repositories
 {
     public interface IEventRepository
     {
-        public List<EventDTO> GetEvents();
-        public EventDTO GetLatestEvent(int andonId);
-        public int AddEvent(EventDTO andonEvent);
+        public List<EventDto> GetEvents();
+        public EventDto GetLatestEvent(int andonId);
+        public int AddEvent(EventDto andonEvent);
     }
 }
