@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AndonMonitoring.Data
 {
-    public class AndonDbContext : DbContext
+    public class AndonDbContext : DbContext, IAndonDbContext
     {
         public AndonDbContext(DbContextOptions<AndonDbContext> options) : base(options) {}
 

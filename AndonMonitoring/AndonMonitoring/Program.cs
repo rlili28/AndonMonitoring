@@ -19,7 +19,8 @@ namespace AndonMonitoring
             builder.Services.AddDbContext<AndonDbContext>(options =>
                     options.UseNpgsql(conn));
 
-            builder.Services.AddScoped<AndonDbContext>();
+            builder.Services.AddScoped<IAndonDbContext, AndonDbContext>();
+            builder.Services.AddScoped<IAndonRepository, AndonRepository>();
 
             var options = new DbContextOptionsBuilder<AndonDbContext>();
             options.UseNpgsql(conn);

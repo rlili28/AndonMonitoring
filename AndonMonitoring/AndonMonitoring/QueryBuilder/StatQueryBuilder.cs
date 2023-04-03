@@ -45,9 +45,9 @@
             return this;
         }
 
-        public StatQueryBuilder Build()
+        public StatQuery Build()
         {
-            return this;
+            return this.query;
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using AndonMonitoring.Data;
 using AndonMonitoring.QueryBuilder;
+using Microsoft.AspNetCore.Mvc;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace AndonMonitoring.Repositories
 {
-    public class StatRepository : IStatRepository
+    public class StatRepository
     {
         private AndonDbContext db;
         public StatRepository(AndonDbContext context)
@@ -13,10 +14,10 @@ namespace AndonMonitoring.Repositories
         }
 
 
-        public int GetAndonStateMinutesByDay(StatQuery query)
+        public ActionResult<int> GetAndonStateMinutesByDay(StatQuery query)
         {
             if (query == null || query.StateId < 0 || query.AndonId < 0 || query.Day == null)
-                return -2;      //some argument wasn't provided
+                return -2;
 
             var result = db.DayStat
                 .Where(d =>
@@ -51,32 +52,32 @@ namespace AndonMonitoring.Repositories
             return minutes;
         }
 
-        public int GetAndonStateCountByDay(int andonId, int stateId, DateTime month)
+        public int GetAndonStateCountByDay(StatQuery query)
         {
             return 0;
         }
 
-        public int GetAndonStateCountByMonth(int andonId, int stateId, DateTime month)
+        public int GetAndonStateCountByMonth(StatQuery query)
         {
             return 0;
         }
 
-        public int AddDayStat(DateTime day, int andonId, int stateId, int count, int minutes)
+        public int AddDayStat(StatQuery query)
         {
             return 0;
         }
 
-        public int AddMonthStat(DateTime month, int andonId, int stateId, int count, int minutes)
+        public int AddMonthStat(StatQuery query)
         {
             return 0;
         }
 
-        public int SetDayStat(DateTime day, int andonId, int stateId, int count, int minutes)
+        public int SetDayStat(StatQuery query)
         {
             return 0;
         }
 
-        public int SetMonthStat(DateTime month, int andonId, int stateId, int count, int minutes)
+        public int SetMonthStat(StatQuery query)
         {
             return 0;
         }
