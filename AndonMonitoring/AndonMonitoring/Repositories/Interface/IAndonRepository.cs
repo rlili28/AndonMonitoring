@@ -1,6 +1,6 @@
 ﻿using AndonMonitoring.Data;
 
-namespace AndonMonitoring.Repositories
+namespace AndonMonitoring.Repositories.Interface
 {
     public interface IAndonRepository
     {

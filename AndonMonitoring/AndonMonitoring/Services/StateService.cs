@@ -1,6 +1,8 @@
-﻿namespace AndonMonitoring.Services
+﻿using AndonMonitoring.Services.Interfaces;
+
+namespace AndonMonitoring.Services
 {
-    public class StateService
+    public class StateService : IStateService
     {
     }
 }

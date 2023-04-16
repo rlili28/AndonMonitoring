@@ -1,4 +1,4 @@
-﻿namespace AndonMonitoring.Services
+﻿namespace AndonMonitoring.Services.Interfaces
 {
     public interface IStatsService
     {

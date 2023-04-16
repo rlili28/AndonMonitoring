@@ -1,12 +1,51 @@
-﻿namespace AndonMonitoring.QueryBuilder
+﻿using AndonMonitoring.AndonExceptions;
+
+namespace AndonMonitoring.QueryBuilder
 {
     public class StatQuery
     {
-        public int? AndonId;
-        public int? StateId;
+        public int Id = -1;
+        public int AndonId = -1;
+        public int StateId = -1;
         public DateTime Day;
         public DateTime Month;
-        public int? Count;
-        public int? Minutes;
+        public int Count = -1;
+        public int Minutes = -1;
+
+
+        //before adding, getting
+        public bool isDayFormat()
+        {
+            if (AndonId == -1 || AndonId < 0)
+                throw new AndonFormatException("andon light id wasn't specified");
+            if (StateId == -1 || StateId < 0)
+                throw new AndonFormatException("state id wasn't provided");
+            if (Day > DateTime.Now)
+                throw new AndonFormatException("specified day is not right");
+            return true;
+        }
+
+        //before adding and getting
+        public bool isMonthFormat()
+        {
+            if (AndonId == -1)
+            {
+                throw new AndonFormatException("andon light id wasn't specified");
+            }
+            if (StateId == -1)
+            {
+                throw new AndonFormatException("state id wasn't provided");
+            }
+            if (Month.Month > DateTime.Now.Month && Month.Year >= DateTime.Now.Year)
+                throw new AndonFormatException("specified month is not right");
+            return true;
+        }
+
+        public bool isSetFormat()
+        {
+            if (Id == -1 || Id < 0)
+                throw new AndonFormatException("Stat id was not provided for setting");
+            return true;
+        }
     }
 }

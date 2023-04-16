@@ -1,11 +1,13 @@
 ﻿using AndonMonitoring.QueryBuilder;
-using AndonMonitoring.Services;
+using AndonMonitoring.Services.Interfaces;
+using AndonMonitoring.AndonExceptions;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace AndonMonitoring.Controllers
 {
-    [Route("api/Stats")]
     [ApiController]
+    [Route("Stats")]
     public class StatsController : ControllerBase
     {
         private readonly IStatsService service;
@@ -14,62 +16,105 @@ namespace AndonMonitoring.Controllers
             service = statsService;
         }
 
-        [HttpGet("{light, state, day}")]
-        public ActionResult<int> GetAndonStateMinutesByDay(Data.AndonDto light, Data.StateDto state, DateTime day)
+        [HttpGet("{light}")]
+        public ActionResult<int> GetAndonStateMinutesByDay(int lightId, int stateId, string dayValue)
         {
-            if(light == null || state == null)
+            if(lightId < 0 || stateId < 0)
             {
                 return BadRequest();
             }
-            StatQuery param = new StatQueryBuilder().WithAndon(light.Id).WithState(state.Id).OnDay(day).Build();
 
-            int minute = 0;
-            
-            minute = service.GetAndonStateMinutesByDay(param);
+            DateTime day;
+            if(!DateTime.TryParse(dayValue, out day)) { return BadRequest(); }
+
+            StatQuery param = new StatQueryBuilder().WithAndon(lightId).WithState(stateId).OnDay(day).Build();
+            int minute;
+            try
+            {
+                minute = service.GetAndonStateMinutesByDay(param);
+            }
+            catch(AndonFormatException e)
+            {
+                return BadRequest(e.Message);
+            }
 
             return minute;
         }
 
-        [HttpGet]
-        public ActionResult<int> GetAndonStateMinutesByMonth(Data.AndonDto light, Data.StateDto state, DateTime month)
+        [HttpGet("{light}")]
+        public ActionResult<int> GetAndonStateMinutesByMonth(int lightId, int stateId, string monthValue)
         {
-            if (light == null || state == null)
+            if (lightId < 0 || stateId < 0)
             {
                 return BadRequest();
             }
-            StatQuery param = new StatQueryBuilder().WithAndon(light.Id).WithState(state.Id).OnMonth(month).Build();
 
-            int minute = 0;
+            DateTime month;
+            if (!DateTime.TryParse(monthValue, out month)) { return BadRequest(); }
 
-            minute = service.GetAndonStateMinutesByMonth(param);
+            StatQuery param = new StatQueryBuilder().WithAndon(lightId).WithState(stateId).OnMonth(month).Build();
+
+            int minute;
+            try
+            {
+                minute = service.GetAndonStateMinutesByMonth(param);
+            }
+            catch (AndonFormatException e)
+            {
+                return BadRequest(e.Message);
+            }
 
             return minute;
         }
 
-        [HttpGet]
-        public ActionResult<int> GetAndonStateCountByDay(Data.AndonDto light, Data.StateDto state, DateTime day)
+        [HttpGet("{light}")]
+        public ActionResult<int> GetAndonStateCountByDay(int lightId, int stateId, string dayValue)
         {
-            if (light == null || state == null)
+            if (lightId < 0 || stateId < 0)
             {
                 return BadRequest();
             }
-            StatQuery param = new StatQueryBuilder().WithAndon(light.Id).WithState(state.Id).OnDay(day).Build();
 
-            int count = service.GetAndonStateCountByDay(param);
+            DateTime day;
+            if (!DateTime.TryParse(dayValue, out day)) { return BadRequest(); }
+
+            StatQuery param = new StatQueryBuilder().WithAndon(lightId).WithState(stateId).OnDay(day).Build();
+
+            int count;
+            try
+            {
+                count = service.GetAndonStateCountByDay(param);
+            }
+            catch (AndonFormatException e)
+            {
+                return BadRequest(e.Message);
+            }
 
             return count;
         }
 
-        [HttpGet]
-        public ActionResult<int> GetAndonStateCountByMonth(Data.AndonDto light, Data.StateDto state, DateTime day)
+        [HttpGet("{light}")]
+        public ActionResult<int> GetAndonStateCountByMonth(int lightId, int stateId, string monthValue)
         {
-            if (light == null || state == null)
+            if (lightId < 0 || stateId < 0)
             {
                 return BadRequest();
             }
-            StatQuery param = new StatQueryBuilder().WithAndon(light.Id).WithState(state.Id).OnDay(day).Build();
 
-            int count = service.GetAndonStateCountByMonth(param);
+            DateTime month;
+            if (!DateTime.TryParse(monthValue, out month)) { return BadRequest(); }
+
+            StatQuery param = new StatQueryBuilder().WithAndon(lightId).WithState(stateId).OnMonth(month).Build();
+
+            int count;
+            try
+            {
+                count = service.GetAndonStateCountByMonth(param);
+            }
+            catch (AndonFormatException e)
+            {
+                return BadRequest(e.Message);
+            }
 
             return count;
         }

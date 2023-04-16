@@ -6,7 +6,7 @@
 
         public StatQueryBuilder()
         {
-            this.query = new StatQuery();
+            query = new StatQuery();
         }
 
         public StatQueryBuilder WithAndon(int id)
@@ -45,9 +45,21 @@
             return this;
         }
 
+        public StatQueryBuilder UpdateMinutes(int minutes)
+        {
+            query.Minutes += minutes;
+            return this;
+        }
+
+        public StatQueryBuilder UpdateCount(int count)
+        {
+            query.Count += count;
+            return this;
+        }
+
         public StatQuery Build()
         {
-            return this.query;
+            return query;
         }
     }
 }

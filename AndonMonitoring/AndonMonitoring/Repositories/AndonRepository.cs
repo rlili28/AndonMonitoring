@@ -1,5 +1,8 @@
 ﻿using AndonMonitoring.Data;
 using AndonMonitoring.Model;
+using AndonMonitoring.Repositories.Interface;
+using AndonMonitoring.AndonExceptions;
+using System.Xml;
 
 namespace AndonMonitoring.Repositories
 {
@@ -16,42 +19,72 @@ namespace AndonMonitoring.Repositories
         {
             if (id <= 0)
                 return null;
-            var andon = db.Andon.FirstOrDefault(a => a.Id == id);
-            if(andon == null) { return null; }
-            var dto = new AndonDto(andon.Id, andon.Name, andon.CreatedDate);
-            return dto;
+            try
+            {
+                var andon = db.Andon.FirstOrDefault(a => a.Id == id);
+                if (andon == null) { return null; }
+                var dto = new AndonDto(andon.Id, andon.Name, andon.CreatedDate);
+                return dto;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public int AddAndon(AndonDto light)
         {
-            var andon = new Andon
+            try
             {
-                Name = light.Name,
-                CreatedDate = light.CreatedTime
-            };
-            db.Andon.Add(andon);
-            db.SaveChanges();
-            return andon.Id;
+                var andon = new Andon
+                {
+                    Name = light.Name,
+                    CreatedDate = light.CreatedTime.ToUniversalTime()
+                };
+
+                db.Andon.Add(andon);
+                db.SaveChanges();
+
+                return andon.Id;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public void DeleteAndon(int id)
         {
-            var andon = db.Andon.Find(id);
-            if (andon != null)
+            try
             {
-                db.Andon.Remove(andon);
-                db.SaveChanges();
+                var andon = db.Andon.FirstOrDefault(a => a.Id == id);
+                if (andon != null)
+                {
+                    db.Andon.Remove(andon);
+                    db.SaveChanges();
+                }
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
         public void UpdateAndon(AndonDto light)
         {
-            var andon = db.Andon.Find(light.Id);
-            if(andon != null)
+            try
             {
-                andon.Name = light.Name;
-                andon.CreatedDate = light.CreatedTime;
-                db.SaveChanges();
+                var andon = db.Andon.FirstOrDefault(a => a.Id == light.Id);
+                if (andon != null)
+                {
+                    andon.Name = light.Name;
+                    andon.CreatedDate = light.CreatedTime.ToUniversalTime();
+                    db.SaveChanges();
+                }
+            }
+            catch(Exception)
+            {
+                throw;
             }
         }
     }

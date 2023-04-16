@@ -1,10 +1,10 @@
-﻿using AndonMonitoring.Services;
+﻿using AndonMonitoring.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AndonMonitoring.Controllers
 {
-    [Route("api/Andon")]
     [ApiController]
+    [Route("Andon")]
     public class AndonController : ControllerBase
     {
         private readonly IAndonService service;
@@ -21,14 +21,25 @@ namespace AndonMonitoring.Controllers
         [HttpGet("{andonId}")]
         public ActionResult<Data.StateDto> GetState(int andonId)   
         {
-            if (andonId == null || andonId < 1)
+            if (andonId < 0)
             {
                 return BadRequest();
             }
-            var state = service.GetState(andonId);
+
+            Data.StateDto state;
+
+            try
+            {
+                state = service.GetState(andonId);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, $"server error: {e.Message}");
+            }
+
             if (state == null)
             {
-                   return NotFound();
+                return NotFound();
             }
             return state;
         }
@@ -41,32 +52,57 @@ namespace AndonMonitoring.Controllers
         [HttpGet("{andonId}")]
         public ActionResult<Data.AndonDto> GetAndon(int andonId)
         {
-            if (andonId == null || andonId < 1)
+            if (andonId < 0)
             {
                 return BadRequest();
             }
-            var andonLight = service.GetAndon(andonId);
+
+            Data.AndonDto andonLight;
+            
+            try
+            {
+                andonLight = service.GetAndon(andonId);
+            }
+            catch(Exception e)
+            {
+                return StatusCode(500, $"server error: {e.Message}");
+            }
+
             if(andonLight == null)
             {
                 return NotFound();
             }
+
             return andonLight;
         }
 
         /// <summary>
         /// Unintuitively this method is to update the state of the specified andon light object, and not a state object as the name would suggest
-        /// so maybe I should rename it
         /// </summary>
         /// <param name="andonId">the unique id of the andon light</param>
         /// <param name="stateId">the uniquw id of the light's new state</param>
         /// <returns>whether the update was successful or not</returns>
         [HttpPost]
-        public IActionResult UpdateState(int andonId, int stateId)
+        public ActionResult UpdateState(int andonId, int stateId)
         {
-            if (andonId < 1 || stateId < 1)
+            if (andonId < 0 || stateId < 0)
                 return BadRequest();
-                       
-            var queryResult = service.ChangeState(andonId, stateId);
+
+            Data.EventDto newEvent;
+
+            try
+            {
+                newEvent = service.ChangeState(andonId, stateId);
+            }
+            catch(Exception e)
+            {
+                return StatusCode(500, $"server error: {e.Message}");
+            }
+
+            if(newEvent == null)
+            {
+                return NotFound();
+            }
 
             return Ok();
         }
@@ -82,39 +118,61 @@ namespace AndonMonitoring.Controllers
             if(light == null || light.Name == null)
                 return BadRequest();
 
-            var queryResult = service.AddAndon(light);
+            int newAndonId;
+            try
+            {
+                newAndonId = service.AddAndon(light);
+            }
+            catch(Exception e)
+            {
+                return StatusCode(500, $"server error: {e.Message}");
+            }
             
-            if(queryResult == null)
+            if(newAndonId < 0)
             {
                 return BadRequest();
             }
 
-            return Ok();
+            return newAndonId;
         }
 
         [HttpPut]
         public IActionResult UpdateAndon(Data.AndonDto andonLight)
         {
-            if(andonLight == null || andonLight.Id < 1)
+            if (andonLight == null || andonLight.Id < 0)
             {
                 return BadRequest();
             }
 
-            var queryResult = service.AddAndon(andonLight);
+            try
+            {
+                service.UpdateAndon(andonLight);
+            }
+            catch(Exception e)
+            {
+                return StatusCode(500, $"error: {e.Message}");
+            }
             
-            return NoContent();
+            return Ok();
         }
 
         public IActionResult DeleteAndon(int id)
         {
-            if(id < 1)
+            if(id < 0)
             {
                 return BadRequest();
             }
 
-            var queryResult = service.DeleteAndon(id);
+            try
+            {
+                service.DeleteAndon(id);
+            }
+            catch(Exception e)
+            {
+                return StatusCode(500, $"{e.Message}");
+            }
             
-            return NoContent();
+            return Ok();
         }
 
     }

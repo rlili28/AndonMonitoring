@@ -1,4 +1,5 @@
-﻿using AndonMonitoring.Model;
+﻿using AndonMonitoring.Data.Interface;
+using AndonMonitoring.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace AndonMonitoring.Data
@@ -6,7 +7,6 @@ namespace AndonMonitoring.Data
     public class AndonDbContext : DbContext, IAndonDbContext
     {
         public AndonDbContext(DbContextOptions<AndonDbContext> options) : base(options) {}
-
 
         public DbSet<Andon> Andon { get; set; }
         public DbSet<State> State { get; set; }
