@@ -22,7 +22,7 @@
             StartDate = startDate;
         }
 
-        public string ToString()
+        public override string ToString()
         {
             return $"event id: {Id}, andon id: {AndonId}, state id: {StateId}, start date: {StartDate.ToString()}";
         }

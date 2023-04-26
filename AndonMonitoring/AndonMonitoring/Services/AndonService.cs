@@ -11,10 +11,11 @@ namespace AndonMonitoring.Services
         private readonly IEventRepository eventRepository;
         private readonly IStateService stateService;
 
-        public AndonService(IAndonRepository andonRepository, IEventRepository eventRepository)
+        public AndonService(IAndonRepository andonR, IEventRepository eventR, IStateService stateS)
         {
-            this.andonRepository = andonRepository;
-            this.eventRepository = eventRepository;
+            andonRepository = andonR;
+            eventRepository = eventR;
+            stateService = stateS;
         }
 
         public int AddAndon(AndonDto andonLight)
@@ -126,9 +127,9 @@ namespace AndonMonitoring.Services
             if (latestEvent == null)
                 throw new AndonFormatException("light with specified id wasn't found");
 
-            int state = latestEvent.StateId;
-            //TODO: itt a state id-jat kapom csak meg az eventDtoban. De nekem StateDto kene, szoval talan kene az EventRepository-ban egy olyan metodus erre ami StateDtoval ter vissza.
-            throw new NotImplementedException();
+            int stateId = latestEvent.StateId;
+
+            return stateService.GetState(stateId);
         }
 
         public List<int> GetAndonIds()

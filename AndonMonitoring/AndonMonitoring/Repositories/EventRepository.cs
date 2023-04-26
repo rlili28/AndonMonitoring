@@ -52,8 +52,8 @@ namespace AndonMonitoring.Repositories
             try
             {
                 var latestEvent = db.Event.Where(e => e.AndonId == andonId).OrderByDescending(e => e.StartDate).FirstOrDefault();
-                if(latestEvent == null)     
-                    return null;
+                if (latestEvent == null)
+                    throw new Exception("id doesn't exist");
        
                 var eventDto = new EventDto(latestEvent.Id, latestEvent.AndonId, latestEvent.StateId, latestEvent.StartDate.ToLocalTime());
                 return eventDto;

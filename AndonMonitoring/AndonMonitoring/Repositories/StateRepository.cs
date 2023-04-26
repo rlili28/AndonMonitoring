@@ -35,7 +35,14 @@ namespace AndonMonitoring.Repositories
         {
             try
             {
+                StateDto? state = db.State
+                    .Where(s => s.Id == id)
+                    .Select(s => new StateDto(s.Id, s.Name))
+                    .FirstOrDefault();
 
+                if (state == null)
+                    throw new Exception("id doesn't exist");
+                return state;
             }
             catch { throw; }
         }

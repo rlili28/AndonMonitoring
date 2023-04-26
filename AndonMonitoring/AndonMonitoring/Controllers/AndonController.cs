@@ -34,7 +34,7 @@ namespace AndonMonitoring.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(500, $"server error: {e.Message}");
+                return StatusCode(500, $"{e.Message}");
             }
 
             if (state == null)
