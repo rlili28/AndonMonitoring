@@ -3,6 +3,7 @@ using AndonMonitoring.AndonExceptions;
 using AndonMonitoring.Model;
 using AndonMonitoring.Repositories.Interface;
 using AndonMonitoring.Data;
+using System;
 
 namespace AndonMonitoring.Repositories
 {
@@ -26,11 +27,11 @@ namespace AndonMonitoring.Repositories
                     .Where(d =>
                         d.AndonId == query.AndonId &&
                         d.StateId == query.StateId &&
-                        d.Day.Day == query.Day.Day)
+                        d.Day.Date == query.Day.Date)
                     .Select(d => d.OverallMinutes);
 
                 if (result == null)
-                    return -1;      //no such record found
+                    throw new Exception("id doesn't exist");
 
                 int minutes = result.FirstOrDefault();
                 return minutes;
@@ -46,17 +47,20 @@ namespace AndonMonitoring.Repositories
         {
             if (query == null)
                 throw new AndonFormatException("params weren't specified");
+
+            //query.Month = query.Month.ToUniversalTime();
             try
             {
                 var result = db.MonthStat
                     .Where(m =>
                         m.AndonId == query.AndonId &&
                         m.StateId == query.StateId &&
-                        m.Month.Month == query.Month.Month)
+                        m.Month.Month == query.Month.Month &&
+                        m.Month.Year == query.Month.Year)
                     .Select(d => d.OverallMinutes);
 
                 if (result == null)
-                    return -1;      //no such record found
+                    throw new Exception("id doesn't exist");
 
                 int minutes = result.FirstOrDefault();
                 return minutes;
@@ -79,11 +83,11 @@ namespace AndonMonitoring.Repositories
                     .Where(m =>
                         m.AndonId == query.AndonId &&
                         m.StateId == query.StateId &&
-                        m.Day.Day == query.Day.Day)
+                        m.Day.Date == query.Day.Date)
                     .Select(d => d.StateCount);
 
                 if (result == null)
-                    return -1;      //no such record found
+                    throw new Exception("id doesn't exist");
 
                 int minutes = result.FirstOrDefault();
                 return minutes;
@@ -100,17 +104,21 @@ namespace AndonMonitoring.Repositories
             if (query == null)
                 throw new AndonFormatException("params weren't specified");
 
+            //query.Month = query.Month.ToUniversalTime();
+
             try
             {
                 var result = db.MonthStat
                     .Where(m =>
                         m.AndonId == query.AndonId &&
                         m.StateId == query.StateId &&
-                        m.Month.Month == query.Month.Month)
+                        m.Month.Month == query.Month.Month &&
+                        m.Month.Year == query.Month.Year)
                     .Select(d => d.StateCount);
 
                 if (result == null)
-                    return -1;      //no such record found
+                    throw new Exception("id doesn't exist");
+                
 
                 int minutes = result.FirstOrDefault();
                 return minutes;
@@ -124,14 +132,27 @@ namespace AndonMonitoring.Repositories
 
         public bool isAdded(DateTime day, int andonId)
         {
+            day = day.ToUniversalTime();
             try
             {
                 return db.DayStat.Any(
-                    d => d.Day.Year == day.Year && 
-                    d.Day.Month == day.Month && 
-                    d.Day.Day == day.Day && 
+                    d => d.Day.Date == day.Date &&
                     d.AndonId == andonId);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
+        public bool isMonthAdded(DateTime month, int andonId)
+        {
+            try
+            {
+                return db.MonthStat.Any(
+                    d => d.Month.Year == month.Year &&
+                    d.Month.Month == month.Month &&
+                    d.AndonId == andonId);
             }
             catch (Exception)
             {
@@ -147,7 +168,7 @@ namespace AndonMonitoring.Repositories
             {
                 query.isDayFormat();
             }
-            catch { throw; } //TODO
+            catch { throw; }
 
 
             var dayStat = new DayStat
@@ -172,10 +193,63 @@ namespace AndonMonitoring.Repositories
             return dayStat.Id;
         }
 
+        public void SetDayStat(StatQuery query)
+        {
+            query.Day = query.Day.ToUniversalTime();
+            try
+            {
+                query.isSetFormat();
+                var dayStat = db.DayStat.FirstOrDefault(s => s.Id == query.Id);
+                if(dayStat != null)
+                {
+                    if(query.Day.Date != dayStat.Day.Date)
+                    {
+                        dayStat.Day = query.Day;
+                    }
+                    dayStat.AndonId = query.AndonId;
+                    dayStat.StateId = query.StateId;
+                    dayStat.OverallMinutes = query.Minutes;
+                    dayStat.StateCount = query.Count;
+                    db.SaveChanges();
+                    
+                }
+            }
+            catch(Exception) { throw; }
+        }
+
+        public void SetMonthStat(StatQuery query)
+        {
+            try
+            {
+                query.isSetFormat();
+                var monthStat = db.MonthStat.FirstOrDefault(s => s.Id == query.Id);
+                if (monthStat != null)
+                {
+                    if (query.Month.Date != DateTime.Now.Date)
+                    {
+                        monthStat.Month = query.Month;
+                    }
+                    monthStat.AndonId = query.AndonId;
+                    monthStat.StateId = query.StateId;
+                    monthStat.OverallMinutes = query.Minutes;
+                    monthStat.StateCount = query.Count;
+                    db.SaveChanges();
+
+                }
+            }
+            catch (Exception) { throw; }
+        }
+
         public int AddMonthStat(StatQuery query)
         {
-            if(query == null)
+            if (query == null)
                 throw new AndonFormatException("params weren't specified");
+
+            try
+            {
+                query.isMonthFormat();
+            }
+            catch { throw; }
 
             var monthStat = new MonthStat
             {
@@ -191,37 +265,45 @@ namespace AndonMonitoring.Repositories
                 db.MonthStat.Add(monthStat);
                 db.SaveChanges();
             }
-            catch(Exception) { throw; }
+            catch (Exception) { throw; }
 
             return monthStat.Id;
         }
 
-        //TODO: egesz metodus
-        public int SetDayStat(StatQuery query)
+        public void DeleteOnDay(DateTime day)
         {
             try
             {
-                query.isSetFormat();
+                var statsFromOneDay = db.DayStat
+                    .Where(s => s.Day.Day == day.Day && s.Day.Month == day.Month && s.Day.Year == day.Year)
+                    .ToList();
+
+                foreach (var stat in statsFromOneDay)
+                {
+                    db.DayStat.Remove(stat);
+                }
+
+                db.SaveChanges();
+            }
+            catch (Exception) { throw; }
+        }
+
+        public void DeleteOnMonth(DateTime month)
+        {
+            try
+            {
+                var statsFromOneMonth = db.MonthStat
+                    .Where(s => s.Month.Month == month.Month && s.Month.Year == month.Year)
+                    .ToList();
+
+                foreach(var stat in statsFromOneMonth)
+                {
+                    db.MonthStat.Remove(stat);
+                }
+
+                db.SaveChanges();
             }
             catch(Exception) { throw; }
-            return 0;
-        }
-
-
-        //TODO: egesz metodus
-        public int SetMonthStat(StatQuery query)
-        {
-            return 0;
-        }
-
-        //TODO: ennek nem igy kell mukodnie majd
-        public int LastState(int AndonId)
-        {
-            return db.DayStat
-                .Where(d => d.AndonId == AndonId)
-                .OrderByDescending(d => d.Day)
-                .Select(d => d.StateId)
-                .FirstOrDefault();
         }
     }
 }

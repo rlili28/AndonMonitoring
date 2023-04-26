@@ -14,28 +14,32 @@ namespace AndonMonitoring.Repositories
             this.db = context;
         }
 
-        public List<EventDto> GetEvents()
+        public List<EventDto> GetEventsFromDay(DateTime day)
         {
+            //itt nem kell day.ToUniversalTime();
             try
             {
-                var events = db.Event.ToList();
-                return events.Select(e => new EventDto(e.Id, e.AndonId, e.StateId, e.StartDate)).ToList();
+                return db.Event
+                    .Where(e => e.StartDate.Year == day.Year && e.StartDate.Month == day.Month && e.StartDate.Day == day.Day)
+                    .OrderBy(e => e.StartDate)
+                    .Select(e => new EventDto(e.Id, e.AndonId, e.StateId, e.StartDate.ToLocalTime()))
+                    .ToList();
             }
-            catch(Exception)
+            catch( Exception )
             {
                 throw;
             }
         }
 
-        public List<EventDto> GetEventsAsc()
+        public List<EventDto> GetEventsFromMonth(DateTime month)
         {
             try
             {
-                var events = db.Event
+                return db.Event
+                    .Where(e => e.StartDate.Year == month.Year && e.StartDate.Month == month.Month)
                     .OrderBy(e => e.StartDate)
+                    .Select(e => new EventDto(e.Id, e.AndonId, e.StateId, e.StartDate.ToLocalTime()))
                     .ToList();
-                return events.Select(e => new EventDto(e.Id, e.AndonId, e.StateId, e.StartDate.ToLocalTime())).ToList();
-
             }
             catch (Exception)
             {
@@ -51,7 +55,7 @@ namespace AndonMonitoring.Repositories
                 if(latestEvent == null)     
                     return null;
        
-                var eventDto = new EventDto(latestEvent.Id, latestEvent.AndonId, latestEvent.StateId, latestEvent.StartDate);
+                var eventDto = new EventDto(latestEvent.Id, latestEvent.AndonId, latestEvent.StateId, latestEvent.StartDate.ToLocalTime());
                 return eventDto;
 
             }
@@ -61,45 +65,42 @@ namespace AndonMonitoring.Repositories
             }
         }
 
+        public int GetPreviousState(int andonId, DateTime time)
+        {
+            time = time.ToUniversalTime();
+            try
+            {
+                var state = db.Event
+                    .Where(e => e.AndonId == andonId && e.StartDate < time)
+                    .OrderByDescending(e => e.StartDate)
+                    .Select(e => e.State)
+                    .FirstOrDefault();
+
+                if(state == null)
+                {
+                    throw new Exception("there's no previous event for the given andon");
+                }
+
+                return state.Id;
+
+            }
+            catch { throw; }
+        }
+
         public int AddEvent(EventDto andonEvent)
         {
             try
             {
                 var ev = new Event
                 {
-                    StartDate = andonEvent.StartDate,
+                    StartDate = andonEvent.StartDate.ToUniversalTime(),
                     AndonId = andonEvent.AndonId,
                     StateId = andonEvent.StateId
                 };
                 db.Event.Add(ev);
                 db.SaveChanges();
+
                 return ev.Id;
-
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
-        public void deleteEvents()
-        {
-            try
-            {
-                var lastEvents = db.Event
-                    .GroupBy(e => e.AndonId)
-                    .Select(g => g.OrderByDescending(e => e.StartDate).FirstOrDefault())
-                    .ToList();
-
-                var sql = "DELETE FROM Event";
-                db.Database.ExecuteSqlRaw(sql);
-
-                foreach(Event e in lastEvents)
-                {
-                    db.Event.Add(e);
-                }
-
-                db.SaveChanges();
 
             }
             catch (Exception)

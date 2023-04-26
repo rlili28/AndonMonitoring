@@ -16,6 +16,6 @@ namespace AndonMonitoring.Services.Interfaces
         public int AddAndon(Data.AndonDto andonLight);
         public void DeleteAndon(int andonId);
         public void UpdateAndon(Data.AndonDto andonLight);
-
+        public List<int> GetAndonIds();
     }
 }

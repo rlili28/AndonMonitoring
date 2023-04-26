@@ -15,6 +15,7 @@ namespace AndonMonitoring.Repositories
             db = context;
         }
 
+
         public AndonDto GetAndon(int id)
         {
             if (id <= 0)
@@ -32,6 +33,16 @@ namespace AndonMonitoring.Repositories
             }
         }
 
+        public List<int> GetAndonIds()
+        {
+            try
+            {
+                return db.Andon
+                    .Select(a => a.Id)
+                    .ToList();
+            }
+            catch { throw; }
+        }
         public int AddAndon(AndonDto light)
         {
             try

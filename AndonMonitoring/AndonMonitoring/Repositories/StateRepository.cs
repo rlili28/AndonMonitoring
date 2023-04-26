@@ -9,7 +9,7 @@ namespace AndonMonitoring.Repositories
         private AndonDbContext db;
         public StateRepository(AndonDbContext context)
         {
-            this.db = context;
+            db = context;
         }
 
         public int AddState(StateDto dto)
@@ -29,6 +29,15 @@ namespace AndonMonitoring.Repositories
             {
                 throw;
             }
+        }
+
+        public StateDto GetState(int id)
+        {
+            try
+            {
+
+            }
+            catch { throw; }
         }
     }
 }

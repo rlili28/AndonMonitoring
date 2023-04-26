@@ -10,10 +10,11 @@ namespace AndonMonitoring.Repositories.Interface
         public int GetAndonStateCountByMonth(StatQuery query);
         public int AddDayStat(StatQuery query);
         public int AddMonthStat(StatQuery query);
-        public int SetDayStat(StatQuery query);
-        public int SetMonthStat(StatQuery query);
+        public void SetDayStat(StatQuery query);
+        public void SetMonthStat(StatQuery query);
 
         public bool isAdded(DateTime day, int andonId);
-        public int LastState(int andonId);
+        public void DeleteOnDay(DateTime day);
+        public void DeleteOnMonth(DateTime month);
     }
 }

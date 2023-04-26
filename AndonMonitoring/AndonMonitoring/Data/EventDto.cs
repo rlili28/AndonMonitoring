@@ -21,5 +21,10 @@
             StateId = stateId;
             StartDate = startDate;
         }
+
+        public string ToString()
+        {
+            return $"event id: {Id}, andon id: {AndonId}, state id: {StateId}, start date: {StartDate.ToString()}";
+        }
     }
 }

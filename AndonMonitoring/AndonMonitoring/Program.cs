@@ -33,47 +33,36 @@ namespace AndonMonitoring
             builder.Services.AddScoped<IStateRepository, StateRepository>();
             builder.Services.AddScoped<IStatRepository, StatRepository>();
 
-            var options = new DbContextOptionsBuilder<AndonDbContext>();
-            options.UseNpgsql(conn);
+            //var options = new DbContextOptionsBuilder<AndonDbContext>();
+            //options.UseNpgsql(conn);
 
-            var db = new AndonDbContext(options.Options);
-            var andonRepo = new AndonRepository(db);
-            var statRepo = new StatRepository(db);
+            //var db = new AndonDbContext(options.Options);
+            //var eventRepo = new EventRepository(db);
+            //var andonRepo = new AndonRepository(db);
+            //var statRepo = new StatRepository(db);
 
-            StatQueryBuilder queryBuilder = new StatQueryBuilder();
-            StatQuery query = queryBuilder.OnDay(new DateTime(2023, 4, 8))
-                 .WithAndon(2)
-                 .WithState(3)
-                 .Build();
-            int count = statRepo.GetAndonStateCountByDay(query);
-            int minutes = statRepo.GetAndonStateMinutesByDay(query);
-            Console.WriteLine("count: " + count + ", minutes: " + minutes);
-
-            bool isToday = statRepo.isAdded(new DateTime(2023,4,9));
-            if(isToday) { Console.WriteLine("today was already added"); }
-            else { Console.WriteLine("today was not yet added"); }
 
             // Add services to the container.
 
-            //builder.Services.AddControllers();
-            //// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            //builder.Services.AddEndpointsApiExplorer();
-            //builder.Services.AddSwaggerGen();
+            builder.Services.AddControllers();
+            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
             //Configure the HTTP request pipeline.
-            //if (app.Environment.IsDevelopment())
-            //{
-            //    app.UseSwagger();
-            //    app.UseSwaggerUI();
-            //}
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
 
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
 
-            //app.UseAuthorization();
+            app.UseAuthorization();
 
-            //app.MapControllers();
+            app.MapControllers();
 
             app.Run();
         }

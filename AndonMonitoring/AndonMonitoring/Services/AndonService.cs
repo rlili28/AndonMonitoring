@@ -9,6 +9,7 @@ namespace AndonMonitoring.Services
     {
         private readonly IAndonRepository andonRepository;
         private readonly IEventRepository eventRepository;
+        private readonly IStateService stateService;
 
         public AndonService(IAndonRepository andonRepository, IEventRepository eventRepository)
         {
@@ -22,8 +23,11 @@ namespace AndonMonitoring.Services
             {
                 int newId;
                 if (!andonLight.isAddFormat())
-                    throw new AndonFormatException("params are not right");
+                    throw new AndonFormatException("params are not right for adding a new andon light");
                 newId = andonRepository.AddAndon(andonLight);
+                //this way every andon has at least one event (for stats)
+                eventRepository.AddEvent(new EventDto(newId, 1, andonLight.CreatedTime));
+
                 return newId;
             }
             catch (Exception)
@@ -125,6 +129,14 @@ namespace AndonMonitoring.Services
             int state = latestEvent.StateId;
             //TODO: itt a state id-jat kapom csak meg az eventDtoban. De nekem StateDto kene, szoval talan kene az EventRepository-ban egy olyan metodus erre ami StateDtoval ter vissza.
             throw new NotImplementedException();
+        }
+
+        public List<int> GetAndonIds()
+        {
+            try
+            {
+                return andonRepository.GetAndonIds();
+            } catch(Exception) { throw; }
         }
     }
 }

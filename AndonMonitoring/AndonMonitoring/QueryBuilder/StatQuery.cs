@@ -22,6 +22,8 @@ namespace AndonMonitoring.QueryBuilder
                 throw new AndonFormatException("state id wasn't provided");
             if (Day > DateTime.Now)
                 throw new AndonFormatException("specified day is not right");
+            if(Day == new DateTime())
+                throw new AndonFormatException("specified day is not right");
             return true;
         }
 
@@ -36,14 +38,17 @@ namespace AndonMonitoring.QueryBuilder
             {
                 throw new AndonFormatException("state id wasn't provided");
             }
+            //if date is in a future month
             if (Month.Month > DateTime.Now.Month && Month.Year >= DateTime.Now.Year)
+                throw new AndonFormatException("specified month is not right");
+            if (Month == new DateTime())
                 throw new AndonFormatException("specified month is not right");
             return true;
         }
 
         public bool isSetFormat()
         {
-            if (Id == -1 || Id < 0)
+            if (Id == -1 || Id < 0 || AndonId == -1 || StateId == -1 || Count == -1 || Minutes == -1)
                 throw new AndonFormatException("Stat id was not provided for setting");
             return true;
         }
