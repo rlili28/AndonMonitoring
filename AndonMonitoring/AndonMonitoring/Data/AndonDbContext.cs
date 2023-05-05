@@ -13,5 +13,29 @@ namespace AndonMonitoring.Data
         public DbSet<Event> Event { get; set; }
         public DbSet<DayStat> DayStat { get; set; }
         public DbSet<MonthStat> MonthStat { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            //ANDON
+            //modelBuilder.Entity<Andon>()
+            //    .Property(a => a.CreatedDate)
+            //    .HasColumnType("timestamp");
+
+            //EVENT
+            modelBuilder.Entity<Event>()
+                .Property(e => e.StartDate)
+                .HasColumnType("timestamp");
+
+            //STATS
+            modelBuilder.Entity<DayStat>()
+                .Property(s => s.Day)
+                .HasColumnType("date");
+
+            modelBuilder.Entity<MonthStat>()
+                .Property(s => s.Month)
+                .HasColumnType("date");
+        }
     }
 }

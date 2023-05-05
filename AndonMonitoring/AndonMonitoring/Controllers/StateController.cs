@@ -15,17 +15,17 @@ namespace AndonMonitoring.Controllers
             stateService = stateS;
         }
 
-        [HttpPost]
-        public int AddState(StateDto state)
+        [HttpPost("addState")]
+        public ActionResult<int> AddState(StateDto state)
         {
-            //try
-            //{
+            try
+            {
                 return stateService.AddState(state);
-            //}
-            //catch (Exception e)
-            //{
-            //    //TODO
-            //}
+            }
+            catch (Exception)
+            {
+                return StatusCodes.Status500InternalServerError;
+            }
         }
     }
 }

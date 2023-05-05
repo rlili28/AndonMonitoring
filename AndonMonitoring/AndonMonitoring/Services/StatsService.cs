@@ -98,41 +98,37 @@ namespace AndonMonitoring.Services
 
             Dictionary<int, EventDto> latests = new Dictionary<int, EventDto>();
             IEnumerable<EventDto> events;
+
+            Dictionary<(int,int), StatQuery> statQueries = new Dictionary<(int, int), StatQuery>();
+
             try
             {
                 events = eventRepository.GetEventsFromDay(day);
-            } catch { throw; }
+            }
+            catch { throw; }
 
             foreach (EventDto curr in events)
             {
                 try
                 {
-                    if (statRepository.isAdded(curr.StartDate, curr.AndonId))       //TODO: lehet ez is felesleges
+                    if (latests.ContainsKey(curr.AndonId))      
                     {
-                        if (latests.ContainsKey(curr.AndonId))
+                        EventDto lastEvent = latests[curr.AndonId];
+                        if (statQueries.ContainsKey((curr.AndonId, lastEvent.StateId)))
                         {
-                            EventDto lastEvent = latests[curr.AndonId];
-                            setDaily(curr, lastEvent);
-                            latests[curr.AndonId] = curr;
+                            setDaily(curr, lastEvent, statQueries); 
                         }
                         else
                         {
-                            //TODO: nem is biztos hogy valaha megtortenhet
+                            addDaily(curr, lastEvent, statQueries);
                         }
+                        latests[curr.AndonId] = curr;
                     }
                     else
                     {
-                        if (!latests.ContainsKey(curr.AndonId))
-                        {
-                            latests.Add(curr.AndonId, curr);
-                            addDaily(curr);
-                        }
-                        else
-                        {
-                            //TODO: nem is biztos hogy valaha megtortenhet
-                        }
+                        latests.Add(curr.AndonId, curr); 
+                        addDaily(curr,statQueries);
                     }
-
                 }
                 catch { throw; }
             }
@@ -142,50 +138,57 @@ namespace AndonMonitoring.Services
 
             foreach(int andonId in andonIds)
             {
-                try
-                {
-                    if (!latests.ContainsKey(andonId))
+                    try
                     {
-                        if (statRepository.isAdded(day, andonId))
-                        { 
-                            //TODO lehet hogy nem is kene ellenoriznem
-                        }
-                        else
+                        if (!latests.ContainsKey(andonId))
                         {
-                            addStatForFullDay(andonId, day);
+                            addStatForFullDay(andonId, day, statQueries);
                         }
                     }
-                }
-                catch { throw; }
+                    catch { throw; }
             }
+
+            statRepository.AddDayStats(statQueries.Values.ToList());
         }
 
-        private void setDaily(EventDto curr, EventDto last)
+        private void setDaily(EventDto curr, EventDto last, Dictionary<(int, int), StatQuery> queries)
         {
-            if (curr.StartDate.Year == last.StartDate.Year && curr.StartDate.Month == last.StartDate.Month && curr.StartDate.Day == last.StartDate.Day)
-            {
-                int minutes = (curr.StartDate - last.StartDate).Minutes;
-                StatQueryBuilder builder = new StatQueryBuilder()
-                    .WithAndon(curr.AndonId)
-                    .WithState(last.StateId)
-                    .WithMinutes(minutes)
-                    .WithCount(1)
-                    .OnDay(last.StartDate);
-                StatQuery stat = builder.Build();
-                statRepository.SetDayStat(stat);
-            }
-            else
-            {
-                throw new Exception("previous event wasn't on the same day, yet there's already a record for the day with this andon?");
-            }
+            int previousminutes = queries[(curr.AndonId, last.StateId)].Minutes;
+            int minutes = (int)(curr.StartDate - last.StartDate).TotalMinutes + previousminutes;
+
+            int count = queries[(curr.AndonId, last.StateId)].Count;
+            count++;
+            StatQueryBuilder builder = new StatQueryBuilder()
+                .WithAndon(curr.AndonId)
+                .WithState(last.StateId)
+                .WithMinutes(minutes)
+                .WithCount(count)
+                .OnDay(last.StartDate);
+            StatQuery stat = builder.Build();
+            queries[(curr.AndonId, last.StateId)] = stat;
+ 
         }
 
-        private void addDaily(EventDto currEvent)
+        private void addDaily(EventDto curr, EventDto last, Dictionary<(int,int),StatQuery> queries)
+        {
+            int lastStateId = last.StateId;
+            int minutes = (int)(curr.StartDate - last.StartDate).TotalMinutes;
+            StatQueryBuilder builder = new StatQueryBuilder()
+                .WithAndon(curr.AndonId)
+                .WithState(lastStateId)
+                .WithMinutes(minutes)
+                .WithCount(1)
+                .OnDay(curr.StartDate);
+            var stat = builder.Build();
+            queries.Add((curr.AndonId, lastStateId), stat);
+        }
+        
+        private void addDaily(EventDto currEvent, Dictionary<(int,int), StatQuery> list)
         {
             int lastStateId = eventRepository.GetPreviousState(currEvent.AndonId, currEvent.StartDate);
 
             //will return the time in minutes between midnight, and the time of the event happening
-            int minutes = (currEvent.StartDate - currEvent.StartDate.Date).Minutes;
+            int minutes = (int)(currEvent.StartDate - currEvent.StartDate.Date).TotalMinutes;
             StatQueryBuilder builder = new StatQueryBuilder()
                 .WithAndon(currEvent.AndonId)
                 .WithState(lastStateId)
@@ -193,11 +196,12 @@ namespace AndonMonitoring.Services
                 .WithCount(1)
                 .OnDay(currEvent.StartDate);
             var stat = builder.Build();
-            statRepository.AddDayStat(stat);
+            //statRepository.AddDayStat(stat);
+            list.Add((currEvent.AndonId, lastStateId), stat);
         }
 
         //when the andon didn't have any event on the given day
-        private void addStatForFullDay(int andonId, DateTime day)
+        private void addStatForFullDay(int andonId, DateTime day, Dictionary<(int,int), StatQuery> list)
         {
             int lastStateId = eventRepository.GetPreviousState(andonId, day);
             int minutes = 0;
@@ -206,7 +210,7 @@ namespace AndonMonitoring.Services
             if(day.Date == DateTime.Now.Date)
             {
                 //minutes since midnight
-                minutes = (DateTime.Now - DateTime.Now.Date).Minutes;
+                minutes = (int)(DateTime.Now - DateTime.Now.Date).TotalMinutes;
             } else
             {
                 minutes = 24 * 60;
@@ -220,14 +224,62 @@ namespace AndonMonitoring.Services
                 .OnDay(day);
 
             var stat = builder.Build();
-            statRepository.AddDayStat(stat);
+            list.Add((andonId, lastStateId), stat);
         }
 
-        //TODO: egesz metodus
         public void createMonthlyStat(DateTime month)
         {
-            
+            statRepository.DeleteOnMonth(month);
+            List<DayStatDto> stats = statRepository.GetDailyStatsOnMonth(month);
 
+            Dictionary<(int, int), StatQuery> statQueries = new Dictionary<(int, int), StatQuery>();
+
+            foreach ( var stat in stats )
+            {
+                try
+                {
+                    if (statQueries.ContainsKey((stat.AndonId, stat.StateId)))
+                    {
+                        setMonthly(stat, statQueries);
+                    }
+                    else
+                    {
+                        addMonthly(stat, statQueries);
+                    }
+                }
+                catch { throw; }
+            }
+
+            statRepository.AddMonthStats(statQueries.Values.ToList());
+        }
+
+        private void addMonthly(DayStatDto stat, Dictionary<(int, int), StatQuery> statQueries)
+        {
+            StatQueryBuilder builder = new StatQueryBuilder()
+                .WithAndon(stat.AndonId)
+                .WithState(stat.StateId)
+                .WithMinutes(stat.OverallMinutes)
+                .WithCount(stat.OverallCount)
+                .OnMonth(stat.Day);
+            var query = builder.Build();
+            statQueries.Add((stat.AndonId, stat.StateId), query);
+        }
+
+        private void setMonthly(DayStatDto stat, Dictionary<(int, int), StatQuery> statQueries)
+        {
+            int previousminutes = statQueries[(stat.AndonId, stat.StateId)].Minutes;
+            int minutes = stat.OverallMinutes + previousminutes;
+            int count = statQueries[(stat.AndonId, stat.StateId)].Count;
+            count += stat.OverallCount;
+
+            StatQueryBuilder builder = new StatQueryBuilder()
+                .WithAndon(stat.AndonId)
+                .WithState(stat.StateId)
+                .WithMinutes(minutes)
+                .WithCount(count)
+                .OnMonth(stat.Day);
+            var query = builder.Build();
+            statQueries[(stat.AndonId, stat.StateId)] = query;
         }
     }
 }

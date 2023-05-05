@@ -1,4 +1,5 @@
 ﻿using AndonMonitoring.AndonExceptions;
+using System.Text.Json.Serialization;
 
 namespace AndonMonitoring.Data
 {
@@ -7,6 +8,8 @@ namespace AndonMonitoring.Data
         public int Id { get; set; }
         public string Name { get; set; }
         public DateTime CreatedTime { get; set; }
+
+        public AndonDto() { }
 
         public AndonDto(int id, string name, DateTime created)
         {

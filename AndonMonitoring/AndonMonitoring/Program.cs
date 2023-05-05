@@ -1,3 +1,4 @@
+using AndonMonitoring.Controllers;
 using AndonMonitoring.Data;
 using AndonMonitoring.Data.Interface;
 using AndonMonitoring.QueryBuilder;
@@ -33,17 +34,7 @@ namespace AndonMonitoring
             builder.Services.AddScoped<IStateRepository, StateRepository>();
             builder.Services.AddScoped<IStatRepository, StatRepository>();
 
-            //var options = new DbContextOptionsBuilder<AndonDbContext>();
-            //options.UseNpgsql(conn);
-
-            //var db = new AndonDbContext(options.Options);
-            //var eventRepo = new EventRepository(db);
-            //var andonRepo = new AndonRepository(db);
-            //var statRepo = new StatRepository(db);
-
-
-            // Add services to the container.
-
+            //Add services to the container.
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();

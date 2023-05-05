@@ -16,6 +16,8 @@ namespace AndonMonitoring.Repositories
         }
 
 
+        //methods for getting stats
+
         public int GetAndonStateMinutesByDay(StatQuery query)
         {
             if (query == null)
@@ -48,7 +50,6 @@ namespace AndonMonitoring.Repositories
             if (query == null)
                 throw new AndonFormatException("params weren't specified");
 
-            //query.Month = query.Month.ToUniversalTime();
             try
             {
                 var result = db.MonthStat
@@ -104,8 +105,6 @@ namespace AndonMonitoring.Repositories
             if (query == null)
                 throw new AndonFormatException("params weren't specified");
 
-            //query.Month = query.Month.ToUniversalTime();
-
             try
             {
                 var result = db.MonthStat
@@ -130,89 +129,126 @@ namespace AndonMonitoring.Repositories
             }
         }
 
-        public bool isAdded(DateTime day, int andonId)
+
+        //methods for creating stats
+
+        public void AddDayStats(List<StatQuery> queries)
         {
-            day = day.ToUniversalTime();
-            try
+            if (queries != null)
             {
-                return db.DayStat.Any(
-                    d => d.Day.Date == day.Date &&
-                    d.AndonId == andonId);
-            }
-            catch (Exception)
-            {
-                throw;
+                foreach( var query in queries)
+                {
+                    try
+                    {
+                        query.isDayFormat();
+
+                        var dayStat = new DayStat
+                        {
+                            Day = query.Day,
+                            AndonId = query.AndonId,
+                            StateId = query.StateId,
+                            OverallMinutes = query.Minutes,
+                            StateCount = query.Count
+                        };
+
+                        db.DayStat.Add(dayStat);
+                        db.SaveChanges();
+                    }
+                    catch { throw; }
+                }
             }
         }
 
-        public bool isMonthAdded(DateTime month, int andonId)
+        public void AddMonthStats(List<StatQuery> queries)
         {
-            try
+            if(queries != null)
             {
-                return db.MonthStat.Any(
-                    d => d.Month.Year == month.Year &&
-                    d.Month.Month == month.Month &&
-                    d.AndonId == andonId);
-            }
-            catch (Exception)
-            {
-                throw;
+                foreach (var query in queries)
+                {
+                    try
+                    {
+                        query.isMonthFormat();
+
+                        var monthStat = new MonthStat
+                        {
+                            Month = query.Month,
+                            AndonId = query.AndonId,
+                            StateId = query.StateId,
+                            OverallMinutes = query.Minutes,
+                            StateCount = query.Count
+                        };
+                        db.MonthStat.Add(monthStat);
+                        db.SaveChanges();
+                    }
+                    catch { throw; }
+                }
             }
         }
 
-        public int AddDayStat(StatQuery query)
+        public List<DayStatDto> GetStatsOnDay(DateTime day)
         {
-            if (query == null)
-                throw new AndonFormatException("params weren't specified");
             try
             {
-                query.isDayFormat();
-            }
-            catch { throw; }
+                return db.DayStat
+                    .Where(d => d.Day.Date == day.Date)
+                    .Select(d => new DayStatDto(d.Id, d.AndonId, d.StateId, d.Day, d.OverallMinutes, d.StateCount))
+                    .ToList();
 
-
-            var dayStat = new DayStat
-            {
-                Day = query.Day.ToUniversalTime(),
-                AndonId = query.AndonId,
-                StateId = query.StateId,
-                OverallMinutes = query.Minutes,
-                StateCount = query.Count
-            };
-
-            try
-            {
-                db.DayStat.Add(dayStat);
-                db.SaveChanges();
             }
             catch(Exception)
             {
                 throw;
             }
-
-            return dayStat.Id;
         }
 
-        public void SetDayStat(StatQuery query)
+        public List<DayStatDto> GetDailyStatsOnMonth(DateTime month)
         {
-            query.Day = query.Day.ToUniversalTime();
             try
             {
-                query.isSetFormat();
-                var dayStat = db.DayStat.FirstOrDefault(s => s.Id == query.Id);
-                if(dayStat != null)
+                return db.DayStat
+                    .Where(m => m.Day.Month == month.Month && m.Day.Year == month.Year)
+                    .Select(m => new DayStatDto(m.Id, m.AndonId, m.StateId, m.Day, m.OverallMinutes, m.StateCount))
+                    .ToList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+        public void DeleteOnDay(DateTime day)
+        {
+            try
+            {
+                var statsFromOneDay = db.DayStat
+                    .Where(s => s.Day.Day == day.Day && s.Day.Month == day.Month && s.Day.Year == day.Year)
+                    .ToList();
+
+                foreach (var stat in statsFromOneDay)
                 {
-                    if(query.Day.Date != dayStat.Day.Date)
-                    {
-                        dayStat.Day = query.Day;
-                    }
-                    dayStat.AndonId = query.AndonId;
-                    dayStat.StateId = query.StateId;
-                    dayStat.OverallMinutes = query.Minutes;
-                    dayStat.StateCount = query.Count;
-                    db.SaveChanges();
-                    
+                    db.DayStat.Remove(stat);
                 }
+
+                db.SaveChanges();
+            }
+            catch (Exception) { throw; }
+        }
+
+        public void DeleteOnMonth(DateTime month)
+        {
+            try
+            {
+                var statsFromOneMonth = db.MonthStat
+                    .Where(s => s.Month.Month == month.Month && s.Month.Year == month.Year)
+                    .ToList();
+
+                foreach(var stat in statsFromOneMonth)
+                {
+                    db.MonthStat.Remove(stat);
+                }
+
+                db.SaveChanges();
             }
             catch(Exception) { throw; }
         }
@@ -253,7 +289,7 @@ namespace AndonMonitoring.Repositories
 
             var monthStat = new MonthStat
             {
-                Month = query.Month.ToUniversalTime(),
+                Month = query.Month,
                 AndonId = query.AndonId,
                 StateId = query.StateId,
                 OverallMinutes = query.Minutes,
@@ -270,40 +306,5 @@ namespace AndonMonitoring.Repositories
             return monthStat.Id;
         }
 
-        public void DeleteOnDay(DateTime day)
-        {
-            try
-            {
-                var statsFromOneDay = db.DayStat
-                    .Where(s => s.Day.Day == day.Day && s.Day.Month == day.Month && s.Day.Year == day.Year)
-                    .ToList();
-
-                foreach (var stat in statsFromOneDay)
-                {
-                    db.DayStat.Remove(stat);
-                }
-
-                db.SaveChanges();
-            }
-            catch (Exception) { throw; }
-        }
-
-        public void DeleteOnMonth(DateTime month)
-        {
-            try
-            {
-                var statsFromOneMonth = db.MonthStat
-                    .Where(s => s.Month.Month == month.Month && s.Month.Year == month.Year)
-                    .ToList();
-
-                foreach(var stat in statsFromOneMonth)
-                {
-                    db.MonthStat.Remove(stat);
-                }
-
-                db.SaveChanges();
-            }
-            catch(Exception) { throw; }
-        }
     }
 }

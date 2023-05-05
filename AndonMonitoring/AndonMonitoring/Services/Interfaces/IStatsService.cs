@@ -6,5 +6,7 @@
         public int GetAndonStateMinutesByMonth(QueryBuilder.StatQuery param);
         public int GetAndonStateCountByDay(QueryBuilder.StatQuery param);
         public int GetAndonStateCountByMonth(QueryBuilder.StatQuery param);
+
+        public void createDailyStat(DateTime day);
     }
 }

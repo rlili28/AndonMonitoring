@@ -1,4 +1,19 @@
 ﻿namespace AndonMonitoring.Data
 {
-    public record StateDto(int Id, string Name);
-}
+    public class StateDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+
+        public StateDto()
+        {
+            
+        }
+
+        public StateDto(int id, string name)
+        {
+            Id = id;
+            Name = name;
+        }
+    }
+} 

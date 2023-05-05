@@ -18,7 +18,7 @@ namespace AndonMonitoring.Controllers
         /// </summary>
         /// <param name="andonId">the unique andon id</param>
         /// <returns>a state data transfer object containing the state the specified andon light is currently in</returns>
-        [HttpGet("state", Name="GetState")]
+        [HttpGet("getState")]
         public ActionResult<Data.StateDto> GetState(int andonId)   
         {
             if (andonId < 0)
@@ -34,7 +34,7 @@ namespace AndonMonitoring.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(500, $"{e.Message}");
+                return StatusCode(500, e.Message);
             }
 
             if (state == null)
@@ -49,7 +49,7 @@ namespace AndonMonitoring.Controllers
         /// </summary>
         /// <param name="andonId">the unique andon id</param>
         /// <returns>an andon data transfer object containing the the andon object that has the specified id (or bad request:c)</returns>
-        [HttpGet("andon", Name="GetAndon")]
+        [HttpGet("getAndon")]
         public ActionResult<Data.AndonDto> GetAndon(int andonId)
         {
             if (andonId < 0)
@@ -65,7 +65,7 @@ namespace AndonMonitoring.Controllers
             }
             catch(Exception e)
             {
-                return StatusCode(500, $"server error: {e.Message}");
+                return StatusCode(500, e.Message);
             }
 
             if(andonLight == null)
@@ -82,7 +82,7 @@ namespace AndonMonitoring.Controllers
         /// <param name="andonId">the unique id of the andon light</param>
         /// <param name="stateId">the uniquw id of the light's new state</param>
         /// <returns>whether the update was successful or not</returns>
-        [HttpPost("update")]
+        [HttpPost("updateState")]
         public ActionResult UpdateState(int andonId, int stateId)
         {
             if (andonId < 0 || stateId < 0)
@@ -96,7 +96,7 @@ namespace AndonMonitoring.Controllers
             }
             catch(Exception e)
             {
-                return StatusCode(500, $"server error: {e.Message}");
+                return StatusCode(500, e.Message);
             }
 
             if(newEvent == null)
@@ -112,7 +112,7 @@ namespace AndonMonitoring.Controllers
         /// </summary>
         /// <param name="light"></param>
         /// <returns></returns>
-        [HttpPost("add")]
+        [HttpPost("addAndon")]
         public ActionResult<int> AddAndon(Data.AndonDto light)
         {
             if(light == null || light.Name == null)
@@ -125,18 +125,18 @@ namespace AndonMonitoring.Controllers
             }
             catch(Exception e)
             {
-                return StatusCode(500, $"server error: {e.Message}");
+                return StatusCode(500, e.Message);
             }
             
-            if(newAndonId < 0)
-            {
-                return BadRequest();
-            }
+            //if(newAndonId < 0)
+            //{
+            //    return BadRequest();
+            //}
 
             return newAndonId;
         }
 
-        [HttpPut]
+        [HttpPut("UpdateAndon")]
         public IActionResult UpdateAndon(Data.AndonDto andonLight)
         {
             if (andonLight == null || andonLight.Id < 0)
@@ -150,13 +150,13 @@ namespace AndonMonitoring.Controllers
             }
             catch(Exception e)
             {
-                return StatusCode(500, $"error: {e.Message}");
+                return StatusCode(500, e.Message);
             }
             
             return Ok();
         }
 
-        [HttpDelete]
+        [HttpDelete("DeleteAndon")]
         public IActionResult DeleteAndon(int id)
         {
             if(id < 0)
@@ -170,7 +170,7 @@ namespace AndonMonitoring.Controllers
             }
             catch(Exception e)
             {
-                return StatusCode(500, $"{e.Message}");
+                return StatusCode(500, e.Message);
             }
             
             return Ok();

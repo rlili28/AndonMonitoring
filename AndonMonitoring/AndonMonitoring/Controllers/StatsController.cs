@@ -16,7 +16,7 @@ namespace AndonMonitoring.Controllers
             service = statsService;
         }
 
-        [HttpGet("dayMinutes")]
+        [HttpGet("getDayMinutes")]
         public ActionResult<int> GetAndonStateMinutesByDay(int lightId, int stateId, string dayValue)
         {
             if(lightId < 0 || stateId < 0)
@@ -41,7 +41,7 @@ namespace AndonMonitoring.Controllers
             return minute;
         }
 
-        [HttpGet("monthMinutes")]
+        [HttpGet("getMonthMinutes")]
         public ActionResult<int> GetAndonStateMinutesByMonth(int lightId, int stateId, string monthValue)
         {
             if (lightId < 0 || stateId < 0)
@@ -67,8 +67,8 @@ namespace AndonMonitoring.Controllers
             return minute;
         }
 
-        [HttpGet("dailyCount")]
-        public ActionResult<int> GetAndonStateCountByDay([FromQuery]int lightId, [FromQuery]int stateId, [FromQuery]string dayValue)
+        [HttpGet("getDailyCount")]
+        public ActionResult<int> GetAndonStateCountByDay(int lightId, int stateId, string dayValue)
         {
             if (lightId < 0 || stateId < 0)
             {
@@ -97,7 +97,7 @@ namespace AndonMonitoring.Controllers
             return count;
         }
 
-        [HttpGet("monthylCount")]
+        [HttpGet("getMonthylCount")]
         public ActionResult<int> GetAndonStateCountByMonth(int lightId, int stateId, string monthValue)
         {
             if (lightId < 0 || stateId < 0)

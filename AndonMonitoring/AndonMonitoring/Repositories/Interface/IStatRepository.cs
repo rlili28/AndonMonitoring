@@ -1,4 +1,5 @@
-﻿using AndonMonitoring.QueryBuilder;
+﻿using AndonMonitoring.Data;
+using AndonMonitoring.QueryBuilder;
 
 namespace AndonMonitoring.Repositories.Interface
 {
@@ -8,13 +9,17 @@ namespace AndonMonitoring.Repositories.Interface
         public int GetAndonStateMinutesByMonth(StatQuery query);
         public int GetAndonStateCountByDay(StatQuery query);
         public int GetAndonStateCountByMonth(StatQuery query);
-        public int AddDayStat(StatQuery query);
-        public int AddMonthStat(StatQuery query);
-        public void SetDayStat(StatQuery query);
-        public void SetMonthStat(StatQuery query);
 
-        public bool isAdded(DateTime day, int andonId);
+        public void AddDayStats(List<StatQuery> queries);
+        public void AddMonthStats(List<StatQuery> queries);
+
+        public List<DayStatDto> GetStatsOnDay(DateTime day);
+        public List<DayStatDto> GetDailyStatsOnMonth(DateTime month);
+
         public void DeleteOnDay(DateTime day);
         public void DeleteOnMonth(DateTime month);
+
+        public int AddMonthStat(StatQuery query);
+        public void SetMonthStat(StatQuery query);
     }
 }

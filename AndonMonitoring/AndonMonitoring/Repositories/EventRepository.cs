@@ -16,13 +16,12 @@ namespace AndonMonitoring.Repositories
 
         public List<EventDto> GetEventsFromDay(DateTime day)
         {
-            //itt nem kell day.ToUniversalTime();
             try
             {
                 return db.Event
                     .Where(e => e.StartDate.Year == day.Year && e.StartDate.Month == day.Month && e.StartDate.Day == day.Day)
                     .OrderBy(e => e.StartDate)
-                    .Select(e => new EventDto(e.Id, e.AndonId, e.StateId, e.StartDate.ToLocalTime()))
+                    .Select(e => new EventDto(e.Id, e.AndonId, e.StateId, e.StartDate))
                     .ToList();
             }
             catch( Exception )
@@ -38,7 +37,7 @@ namespace AndonMonitoring.Repositories
                 return db.Event
                     .Where(e => e.StartDate.Year == month.Year && e.StartDate.Month == month.Month)
                     .OrderBy(e => e.StartDate)
-                    .Select(e => new EventDto(e.Id, e.AndonId, e.StateId, e.StartDate.ToLocalTime()))
+                    .Select(e => new EventDto(e.Id, e.AndonId, e.StateId, e.StartDate))
                     .ToList();
             }
             catch (Exception)
@@ -55,7 +54,7 @@ namespace AndonMonitoring.Repositories
                 if (latestEvent == null)
                     throw new Exception("id doesn't exist");
        
-                var eventDto = new EventDto(latestEvent.Id, latestEvent.AndonId, latestEvent.StateId, latestEvent.StartDate.ToLocalTime());
+                var eventDto = new EventDto(latestEvent.Id, latestEvent.AndonId, latestEvent.StateId, latestEvent.StartDate);
                 return eventDto;
 
             }
@@ -67,7 +66,6 @@ namespace AndonMonitoring.Repositories
 
         public int GetPreviousState(int andonId, DateTime time)
         {
-            time = time.ToUniversalTime();
             try
             {
                 var state = db.Event
@@ -93,7 +91,7 @@ namespace AndonMonitoring.Repositories
             {
                 var ev = new Event
                 {
-                    StartDate = andonEvent.StartDate.ToUniversalTime(),
+                    StartDate = andonEvent.StartDate,
                     AndonId = andonEvent.AndonId,
                     StateId = andonEvent.StateId
                 };
