@@ -1,14 +1,11 @@
-using AndonMonitoring.Controllers;
 using AndonMonitoring.Data;
 using AndonMonitoring.Data.Interface;
-using AndonMonitoring.QueryBuilder;
 using AndonMonitoring.Repositories;
 using AndonMonitoring.Repositories.Interface;
 using AndonMonitoring.Services;
 using AndonMonitoring.Services.Interfaces;
+using AndonMonitoring.TimedService;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Npgsql;
 
 namespace AndonMonitoring
 {
@@ -34,8 +31,14 @@ namespace AndonMonitoring
             builder.Services.AddScoped<IStateRepository, StateRepository>();
             builder.Services.AddScoped<IStatRepository, StatRepository>();
 
+            //timed stat service
+
+            builder.Services.AddHostedService<TimedHostedStatService>();
+            builder.Services.AddScoped<IScopedStatService, ScopedStatService>();
+
             //Add services to the container.
             builder.Services.AddControllers();
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

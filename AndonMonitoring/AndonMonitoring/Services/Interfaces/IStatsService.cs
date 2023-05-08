@@ -8,5 +8,6 @@
         public int GetAndonStateCountByMonth(QueryBuilder.StatQuery param);
 
         public void createDailyStat(DateTime day);
+        public void createMonthlyStat(DateTime month);
     }
 }
