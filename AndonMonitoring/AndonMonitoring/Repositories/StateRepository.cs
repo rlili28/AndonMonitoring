@@ -12,6 +12,11 @@ namespace AndonMonitoring.Repositories
             db = context;
         }
 
+        /// <summary>
+        /// Add a new state to the database.
+        /// </summary>
+        /// <param name="dto">The StateDto object representing the state to be added.</param>
+        /// <returns>Returns the id the database assigned to the new state.</returns>
         public int AddState(StateDto dto)
         {
             try
@@ -31,6 +36,11 @@ namespace AndonMonitoring.Repositories
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public StateDto GetState(int id)
         {
             try

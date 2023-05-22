@@ -18,6 +18,12 @@ namespace AndonMonitoring.Repositories
 
         //methods for getting stats
 
+        /// <summary>
+        /// Gets the total number of minutes that the provided andon light was in the provided state on the given day from the database.
+        /// </summary>
+        /// <param name="query">The query params. (Andon id, State id, Day)</param>
+        /// <returns>The total number of minutes that the Andon light was in the specified state on the specified day</returns>
+        /// <exception cref="AndonFormatException">Thrown when the there is no record in the database that matches the query params.</exception>
         public int GetAndonStateMinutesByDay(StatQuery query)
         {
             if (query == null)
@@ -33,7 +39,7 @@ namespace AndonMonitoring.Repositories
                     .Select(d => d.OverallMinutes);
 
                 if (result == null)
-                    throw new Exception("id doesn't exist");
+                    throw new Exception("stats with the given specification don't exist");
 
                 int minutes = result.FirstOrDefault();
                 return minutes;
@@ -45,6 +51,12 @@ namespace AndonMonitoring.Repositories
             }
         }
 
+        /// <summary>
+        /// Gets the total number of minutes that the provided andon light was in the provided state on the given month from the database.
+        /// </summary>
+        /// <param name="query">The query params. (Andon id, State id, Month)</param>
+        /// <returns>The total number of minutes that the Andon light was in the specified state on the specified month</returns>
+        /// <exception cref="AndonFormatException">Thrown when the there is no record in the database that matches the query params.</exception>
         public int GetAndonStateMinutesByMonth(StatQuery query)
         {
             if (query == null)
@@ -61,7 +73,7 @@ namespace AndonMonitoring.Repositories
                     .Select(d => d.OverallMinutes);
 
                 if (result == null)
-                    throw new Exception("id doesn't exist");
+                    throw new Exception("stats with the given specification don't exist");
 
                 int minutes = result.FirstOrDefault();
                 return minutes;
@@ -72,7 +84,13 @@ namespace AndonMonitoring.Repositories
                 throw;
             }
         }
-
+        
+        /// <summary>
+        /// Gets the total number of times that the provided andon light was in the provided state on the given day from the database.
+        /// </summary>
+        /// <param name="query">The query params. (Andon id, State id, Day)</param>
+        /// <returns>The total number of times that the Andon light was in the specified state on the specified day</returns>
+        /// <exception cref="AndonFormatException">Thrown when the there is no record in the database that matches the query params.</exception>
         public int GetAndonStateCountByDay(StatQuery query)
         {
             if (query == null)
@@ -88,7 +106,7 @@ namespace AndonMonitoring.Repositories
                     .Select(d => d.StateCount);
 
                 if (result == null)
-                    throw new Exception("id doesn't exist");
+                    throw new Exception("stats with the given specification don't exist");
 
                 int minutes = result.FirstOrDefault();
                 return minutes;
@@ -116,7 +134,7 @@ namespace AndonMonitoring.Repositories
                     .Select(d => d.StateCount);
 
                 if (result == null)
-                    throw new Exception("id doesn't exist");
+                    throw new Exception("stats with the given specification don't exist");
                 
 
                 int minutes = result.FirstOrDefault();

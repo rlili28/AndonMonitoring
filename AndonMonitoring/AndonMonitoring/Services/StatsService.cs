@@ -20,9 +20,15 @@ namespace AndonMonitoring.Services
             andonService = andonS;
         }
 
+        /// <summary>
+        /// Checks whether the given query parameters are valid and then
+        /// gets the total number of times that an Andon light was in a specific state on a given day.
+        /// </summary>
+        /// <param name="param">The query parameters</param>
+        /// <returns>The total number of times that the andon light was in the specified state on the specified day</returns>
         public int GetAndonStateCountByDay(StatQuery param)
         {
-            int count = -1;
+            int count;
             try
             {
                 param.isDayFormat();
@@ -33,14 +39,18 @@ namespace AndonMonitoring.Services
                 throw;
             }
 
-            if (count == -1)
-                throw new Exception(); //TODO
             return count;
         }
 
+        /// <summary>
+        /// Checks whether the given query parameters are valid and then
+        /// gets the total number of times that an Andon light was in a specific state on a given month.
+        /// </summary>
+        /// <param name="param">The query parameters</param>
+        /// <returns>The total number of times that the andon light was in the specified state on the specified month</returns>
         public int GetAndonStateCountByMonth(StatQuery param)
         {
-            int count = -1;
+            int count;
             try
             {
                 param.isMonthFormat();
@@ -51,14 +61,18 @@ namespace AndonMonitoring.Services
                 throw;
             }
 
-            if (count == -1)
-                throw new Exception(); //TODO
             return count;
         }
 
+        /// <summary>
+        /// Checks whether the given query parameters are valid and then
+        /// gets the total number of minutes that an Andon light was in a specific state on a given day.
+        /// </summary>
+        /// <param name="param">The query parameters</param>
+        /// <returns>The total number of minutes that the andon light was in the specified state on the specified day</returns>
         public int GetAndonStateMinutesByDay(StatQuery param)
         {
-            int minutes = -1;
+            int minutes;
             try
             {
                 param.isDayFormat();
@@ -69,14 +83,18 @@ namespace AndonMonitoring.Services
                 throw;
             }
 
-            if (minutes == -1)
-                throw new Exception();   //TODO
             return minutes;
         }
 
+        /// <summary>
+        /// Checks whether the given query parameters are valid and then
+        /// gets the total number of minutes that an Andon light was in a specific state on a given month.
+        /// </summary>
+        /// <param name="param">The query parameters</param>
+        /// <returns>The total number of minutes that the andon light was in the specified state on the specified month</returns>
         public int GetAndonStateMinutesByMonth(StatQuery param)
         {
-            int minutes = -1;
+            int minutes;
             try
             {
                 param.isMonthFormat();
@@ -87,8 +105,6 @@ namespace AndonMonitoring.Services
                 throw;
             }
 
-            if (minutes == -1)
-                throw new Exception();       //TODO
             return minutes;
         }
 

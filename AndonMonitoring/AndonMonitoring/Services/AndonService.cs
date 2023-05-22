@@ -39,8 +39,11 @@ namespace AndonMonitoring.Services
             
         }
 
-        
-
+        /// <summary>
+        /// Deletes the andon with the specified andonId.
+        /// </summary>
+        /// <param name="andonId">The id of the Andon to delete.</param>
+        /// <exception cref="Exception">Thrown after delete, if the item is still available in the database</exception>
         public void DeleteAndon(int andonId)
         {
             try
@@ -54,10 +57,15 @@ namespace AndonMonitoring.Services
 
             if(andonRepository.GetAndon(andonId) != null)
             {
-                throw new Exception("delete didn't work for some reason?");
+                throw new Exception("delete didn't work");
             }
         }
 
+        /// <summary>
+        /// Retrieves an AndonDto object for the specified andonId.
+        /// </summary>
+        /// <param name="andonId">The unique identifier for the Andon.</param>
+        /// <returns>Returns the AndonDto object if it exists, otherwise throws an AndonFormatException.</returns>
         public AndonDto GetAndon(int andonId)
         {
             AndonDto andon;
@@ -73,7 +81,7 @@ namespace AndonMonitoring.Services
 
             if(andon == null)
             {
-                throw new AndonFormatException("no such andon exists in the database, probably an andon light with the specified id doesn't exist");
+                throw new AndonFormatException("no such andon exists in the database");
             }
 
             return andon;
@@ -89,11 +97,17 @@ namespace AndonMonitoring.Services
             catch(Exception) { throw; }
         }
 
+        /// <summary>
+        /// Updates the state of the andon to the provided state ID by calling the method to add a new event.
+        /// </summary>
+        /// <param name="andonId">The ID of the Andon to update.</param>
+        /// <param name="stateId">The ID of the new state to set.</param>
+        /// <returns>Returns the EventDTO object that was added by updating the andon's state</returns>
         public EventDto ChangeState(int andonId, int stateId)
         {
             EventDto newEvent = new EventDto(andonId, stateId, DateTime.Now);
 
-            int newEventId = -1;
+            int newEventId;
             try
             {
                 newEventId = eventRepository.AddEvent(newEvent);
@@ -103,15 +117,16 @@ namespace AndonMonitoring.Services
                 throw;
             }
 
-            if (newEventId == -1)
-                throw new Exception();  //TODO
-
             newEvent.Id = newEventId;
             return newEvent;
 
         }
 
-        //which state the specified light is in currently?
+        /// <summary>
+        /// Retrieves the latest event for the specified andon using its id. Then retrieves the state information for that event.
+        /// </summary>
+        /// <param name="andonId">The andon's unique identifier</param>
+        /// <returns>Returns a StateDto object with the andon's current state information if successful, otherwise throws an exception.</returns>
         public StateDto GetState(int andonId)
         {
             EventDto latestEvent;
@@ -125,7 +140,7 @@ namespace AndonMonitoring.Services
             }
 
             if (latestEvent == null)
-                throw new AndonFormatException("light with specified id wasn't found");
+                throw new AndonFormatException("light with specified id doesn't exist");
 
             int stateId = latestEvent.StateId;
 
@@ -137,7 +152,8 @@ namespace AndonMonitoring.Services
             try
             {
                 return andonRepository.GetAndonIds();
-            } catch(Exception) { throw; }
+            }
+            catch(Exception) { throw; }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AndonMonitoring.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace AndonMonitoring.Controllers
 {
@@ -14,10 +15,13 @@ namespace AndonMonitoring.Controllers
         }
 
         /// <summary>
-        /// Gets current state associated with the specified andon id
+        /// Retrieves the current state of the specified andon using its id.
         /// </summary>
-        /// <param name="andonId">the unique andon id</param>
-        /// <returns>a state data transfer object containing the state the specified andon light is currently in</returns>
+        /// <param name="andonId">The andon's unique identifier</param>
+        /// <returns>Returns a StateDto object with the current state information if successful, otherwise returns an appropriate error response.</returns>
+        /// <response code="200">Retrieving successful</response>
+        /// <response code="404"></response>
+        /// <response code ="500"></response>
         [HttpGet("getState")]
         public ActionResult<Data.StateDto> GetState(int andonId)   
         {
@@ -45,10 +49,10 @@ namespace AndonMonitoring.Controllers
         }
 
         /// <summary>
-        /// Gets the andon light record with the specified id
+        /// Retreives the andon light record with the specified id
         /// </summary>
-        /// <param name="andonId">the unique andon id</param>
-        /// <returns>an andon data transfer object containing the the andon object that has the specified id (or bad request:c)</returns>
+        /// <param name="andonId">The unique identifier of the andon to retrieve.</param>
+        /// <returns>Returns an AndonDto object containing the information about the specified andon if successful, otherwise returns an error response.</returns>
         [HttpGet("getAndon")]
         public ActionResult<Data.AndonDto> GetAndon(int andonId)
         {
@@ -77,13 +81,13 @@ namespace AndonMonitoring.Controllers
         }
 
         /// <summary>
-        /// Unintuitively this method is to update the state of the specified andon light object, and not a state object as the name would suggest
+        /// Updates the state of an Andon based on the provided Andon ID and new state ID.
         /// </summary>
-        /// <param name="andonId">the unique id of the andon light</param>
-        /// <param name="stateId">the uniquw id of the light's new state</param>
-        /// <returns>whether the update was successful or not</returns>
+        /// <param name="andonId">The ID of the Andon to update.</param>
+        /// <param name="stateId">The ID of the new state to set.</param>
+        /// <returns>Returns an HTTP status code indicating success or failure of the update operation.</returns>
         [HttpPost("updateState")]
-        public ActionResult UpdateState(int andonId, int stateId)
+        public IActionResult UpdateState(int andonId, int stateId)
         {
             if (andonId < 0 || stateId < 0)
                 return BadRequest();
@@ -108,10 +112,10 @@ namespace AndonMonitoring.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Adds a new Andon with the provided name
         /// </summary>
-        /// <param name="light"></param>
-        /// <returns></returns>
+        /// <param name="light">The AndonDto object containing the name.</param>
+        /// <returns>The id of the new andon if adding was successful, otherwise returns an error response</returns>
         [HttpPost("addAndon")]
         public ActionResult<int> AddAndon(Data.AndonDto light)
         {
@@ -136,6 +140,11 @@ namespace AndonMonitoring.Controllers
             return newAndonId;
         }
 
+        /// <summary>
+        /// Updates an existing Andon with the provided data.
+        /// </summary>
+        /// <param name="andonLight">The AndonDto object containing the updated information about the andon</param>
+        /// <returns>Returns an HTTP status code indicating the success or failure of the update operation.</returns>
         [HttpPut("UpdateAndon")]
         public IActionResult UpdateAndon(Data.AndonDto andonLight)
         {
@@ -156,6 +165,11 @@ namespace AndonMonitoring.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Deletes the Andon with the specified id.
+        /// </summary>
+        /// <param name="id">The id of the Andon to delete.</param>
+        /// <returns>Returns an HTTP status code indicating the success or failure of the delete operation.</returns>
         [HttpDelete("DeleteAndon")]
         public IActionResult DeleteAndon(int id)
         {

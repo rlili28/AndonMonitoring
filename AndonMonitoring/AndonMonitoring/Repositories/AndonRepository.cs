@@ -1,8 +1,6 @@
 ﻿using AndonMonitoring.Data;
 using AndonMonitoring.Model;
 using AndonMonitoring.Repositories.Interface;
-using AndonMonitoring.AndonExceptions;
-using System.Xml;
 
 namespace AndonMonitoring.Repositories
 {
@@ -15,11 +13,13 @@ namespace AndonMonitoring.Repositories
             db = context;
         }
 
-
+        /// <summary>
+        /// Retrieves the Andon with the specified id from the database and returns it as an AndonDto object.
+        /// </summary>
+        /// <param name="id">The unique id of the Andon to retrieve.</param>
+        /// <returns>Returns the Andon as an AndonDto object if it exists in the database, otherwise returns null.</returns>
         public AndonDto GetAndon(int id)
         {
-            if (id <= 0)
-                return null;
             try
             {
                 var andon = db.Andon.FirstOrDefault(a => a.Id == id);
@@ -33,6 +33,10 @@ namespace AndonMonitoring.Repositories
             }
         }
 
+        /// <summary>
+        /// Retrieves all Andons from the database.
+        /// </summary>
+        /// <returns>Returns the list of all andons as AndonDto objects from the database.</returns>
         public List<int> GetAndonIds()
         {
             try
@@ -43,6 +47,12 @@ namespace AndonMonitoring.Repositories
             }
             catch { throw; }
         }
+
+        /// <summary>
+        /// Adds the received Andon to the database.
+        /// </summary>
+        /// <param name="light">The Andon to add to the database.</param>
+        /// <returns>Returns the id of the newly added andon to the database.</returns>
         public int AddAndon(AndonDto light)
         {
             try
@@ -64,6 +74,10 @@ namespace AndonMonitoring.Repositories
             }
         }
 
+        /// <summary>
+        /// Deletes the Andon with the specified id from the database.
+        /// </summary>
+        /// <param name="id">The id of the Andon to delete.</param>
         public void DeleteAndon(int id)
         {
             try
@@ -81,6 +95,12 @@ namespace AndonMonitoring.Repositories
             }
         }
 
+        /// <summary>
+        /// Checks if the Andon with the specified id exists in the database.
+        /// If it does, updates the Andon with the specified id in the database.
+        /// If it doesn't, does nothing. //TODO nem kene semmit se csinalnia
+        /// </summary>
+        /// <param name="light"></param>
         public void UpdateAndon(AndonDto light)
         {
             try
@@ -91,6 +111,10 @@ namespace AndonMonitoring.Repositories
                     andon.Name = light.Name;
                     andon.CreatedDate = light.CreatedTime.ToUniversalTime();
                     db.SaveChanges();
+                }
+                else
+                {
+                    //TODO valamit kene csinalni, ha az update-elni kivant andon nem letezik
                 }
             }
             catch(Exception)

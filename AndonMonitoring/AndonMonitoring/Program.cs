@@ -15,8 +15,21 @@ namespace AndonMonitoring
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            string conn;
             //Add connection string
-            var conn = builder.Configuration.GetConnectionString("DefaultConnection");
+            if(Environment.GetEnvironmentVariable("PGL__HOST")==null)
+            {
+                conn = builder.Configuration.GetConnectionString("DefaultConnection");
+            }
+            else
+            {
+                string host = Environment.GetEnvironmentVariable("PGQL__HOST");
+                string port = Environment.GetEnvironmentVariable("PGQL__PORT");
+                string user = Environment.GetEnvironmentVariable("PGQL__USER");
+                string password = Environment.GetEnvironmentVariable("PGQL__PW");
+                string database = Environment.GetEnvironmentVariable("PGQL__DB");
+                conn = $"UserID={user};Password={password};Host={host};Port={port};Database={database}";
+            }
 
             //Add dbcontext
             builder.Services.AddDbContext<AndonDbContext>(options =>
