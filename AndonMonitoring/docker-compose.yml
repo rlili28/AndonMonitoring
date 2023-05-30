@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+ andon:
+  image: git.sztaki.hu:5050/zahoranl/andon-monitoring-onlab
+  container_name: andon_monitor
+  ports:
+   - "8080:80"
+  depends_on:
+   - postgres
+  environment:
+   - PGQL__HOST=postgres_2
+   - PGQL__PORT=5433
+   - PGQL__USER=postgres
+   - PGQL__PW=postgrespw
+   - PGQL__DB=postgres
+
+ postgres:
+  image: postgres
+  container_name: postgres_2
+  volumes:
+   - postgresvolume:/var/opt/postgres
+  ports:
+   - "5433:5432"
+  environment:
+   - POSTGRES_USER=postgres
+   - POSTGRES_PASSWORD=postgrespw
+   
+volumes:
+ postgresvolume:

@@ -17,7 +17,7 @@ namespace AndonMonitoring
 
             string conn;
             //Add connection string
-            if(Environment.GetEnvironmentVariable("PGL__HOST")==null)
+            if (Environment.GetEnvironmentVariable("PGQL__HOST") == null)
             {
                 conn = builder.Configuration.GetConnectionString("DefaultConnection");
             }
@@ -31,9 +31,13 @@ namespace AndonMonitoring
                 conn = $"UserID={user};Password={password};Host={host};Port={port};Database={database}";
             }
 
+            Console.WriteLine(conn);
+
             //Add dbcontext
             builder.Services.AddDbContext<AndonDbContext>(options =>
-                    options.UseNpgsql(conn));
+            {
+                options.UseNpgsql(conn);
+            });
 
             builder.Services.AddScoped<IAndonDbContext, AndonDbContext>();
             builder.Services.AddScoped<IAndonService, AndonService>();
@@ -45,7 +49,6 @@ namespace AndonMonitoring
             builder.Services.AddScoped<IStatRepository, StatRepository>();
 
             //timed stat service
-
             builder.Services.AddHostedService<TimedHostedStatService>();
             builder.Services.AddScoped<IScopedStatService, ScopedStatService>();
 

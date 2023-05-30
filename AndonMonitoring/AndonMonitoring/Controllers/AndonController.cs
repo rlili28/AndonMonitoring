@@ -1,6 +1,5 @@
 ﻿using AndonMonitoring.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace AndonMonitoring.Controllers
 {
